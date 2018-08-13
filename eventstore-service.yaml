@@ -1,0 +1,12 @@
+kind: Service  
+apiVersion: v1  
+metadata:  
+  name: "eventstore"
+spec:  
+  selector:
+    app: "eventstore"
+  ports:
+    - protocol: "TCP"
+      port: 2113
+      targetPort: 2113
+  clusterIP: None

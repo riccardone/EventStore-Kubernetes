@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-eventstore
+spec:
+  selector:
+    matchLabels:
+      app: frontend-eventstore
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend-eventstore
+        track: stable
+    spec:
+      containers:
+        - name: nginx
+          image: "nginx:1.15"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/sbin/nginx","-s","quit"]
+          volumeMounts:
+            - name: "nginx-eventstore-frontend-conf"
+              mountPath: "/etc/nginx/conf.d"
+            #- name: "tls-certs"
+            #  mountPath: "/etc/tls"
+      volumes:
+        #- name: "tls-certs"
+        #  secret:
+        #    secretName: "tls-certs"
+        - name: "nginx-eventstore-frontend-conf"
+          configMap:
+            name: "nginx-eventstore-frontend-conf"
+            items:
+              - key: "frontend.conf"
+                path: "frontend.conf"

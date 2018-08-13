@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eventstore  
+spec:
+  selector:
+    matchLabels:
+      app: eventstore
+  replicas: 3
+  serviceName: eventstore
+  template:
+    metadata:
+      labels:
+        app: eventstore  
+    spec:      
+      containers:
+        - name: eventstore
+          image: "eventstore/eventstore:release-4.1.1-hotfix1"
+          volumeMounts:
+            - mountPath: "/usr/data/eventstore"
+              name: eventstore-pv-storage
+          env: 
+            - name: EVENTSTORE_INT_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: EVENTSTORE_EXT_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: EVENTSTORE_INT_TCP_PORT
+              value: "1111"
+            - name: EVENTSTORE_EXT_TCP_PORT
+              value: "1112"
+            - name: EVENTSTORE_INT_HTTP_PORT
+              value: "2114"
+            - name: EVENTSTORE_EXT_HTTP_PORT
+              value: "2113"
+            - name: EVENTSTORE_CLUSTER_SIZE
+              value: "3"
+            - name: EVENTSTORE_CLUSTER_DNS
+              value: "eventstore.default.svc.cluster.local"
+            - name: EVENTSTORE_CLUSTER_GOSSIP_PORT
+              value: "2114"
+            - name: EVENTSTORE_GOSSIP_ALLOWED_DIFFERENCE_MS
+              value: "600000"
+            - name: EVENTSTORE_INT_HTTP_PREFIXES
+              value: "http://*:2114/"
+            - name: EVENTSTORE_EXT_HTTP_PREFIXES
+              value: "http://*:2113/"
+          ports:
+            - containerPort: 2113
+            - containerPort: 2114
+            - containerPort: 1111
+            - containerPort: 1112      
+  volumeClaimTemplates:
+    - metadata:
+        name: eventstore-pv-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi       
