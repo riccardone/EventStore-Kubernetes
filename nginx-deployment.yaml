@@ -33,5 +33,5 @@ spec:
           configMap:
             name: "nginx-eventstore-frontend-conf"
             items:
-              - key: "frontend.conf"
-                path: "frontend.conf"
+              - key: "nginx-configmap.conf"
+                path: "nginx-configmap.conf"
